@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventario Galvalume — Postes de Luz Urbanos</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --steel:    #0B1320;
+    --steel2:   #111D30;
+    --steel3:   #172340;
+    --panel:    #1A2840;
+    --line:     #253550;
+    --accent:   #F4A800;
+    --accent2:  #E8620A;
+    --cyan:     #00C8D4;
+    --green:    #22C77A;
+    --red:      #F04040;
+    --text:     #E8EEF8;
+    --text2:    #8CA0BC;
+    --text3:    #5A7090;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  body {
+    background: var(--steel);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    background: linear-gradient(135deg, #0B1320 0%, #172340 60%, #1a2e50 100%);
+    border-bottom: 3px solid var(--accent);
+    padding: 2rem 2.5rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    border: 40px solid rgba(244,168,0,0.07);
+    pointer-events: none;
+  }
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: 40%;
+    width: 500px; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0,200,212,0.3), transparent);
+  }
+  .header-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .header-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 5vw, 46px);
+    letter-spacing: 0.05em;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .header-title span { color: var(--accent); }
+  .header-sub {
+    font-size: 13px;
+    color: var(--text2);
+    font-weight: 300;
+  }
+  .header-badges {
+    display: flex; gap: 8px; margin-top: 1rem; flex-wrap: wrap;
+  }
+  .hbadge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+  .hbadge-gold { background: rgba(244,168,0,0.15); color: var(--accent); border: 1px solid rgba(244,168,0,0.3); }
+  .hbadge-cyan { background: rgba(0,200,212,0.1); color: var(--cyan); border: 1px solid rgba(0,200,212,0.25); }
+  .hbadge-orange { background: rgba(232,98,10,0.12); color: var(--accent2); border: 1px solid rgba(232,98,10,0.28); }
+
+  /* ── MAIN WRAPPER ── */
+  .main { padding: 2rem 2.5rem 3rem; max-width: 1280px; }
+
+  /* ── CONFIG CARD ── */
+  .config-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--cyan);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.75rem;
+  }
+  .config-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .config-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--line), transparent);
+  }
+  .config-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .config-item label {
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: block; margin-bottom: 0.5rem;
+  }
+  .val-display {
+    font-family: var(--font-display);
+    font-size: 36px;
+    color: var(--accent);
+    line-height: 1;
+    margin-top: 0.35rem;
+  }
+  .unit { font-size: 16px; color: var(--text2); font-family: var(--font-body); }
+
+  input[type=range] {
+    width: 100%;
+    -webkit-appearance: none;
+    background: var(--line);
+    height: 4px;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--steel);
+    box-shadow: 0 0 0 3px rgba(244,168,0,0.2);
+    cursor: pointer;
+  }
+  input[type=range]:hover::-webkit-slider-thumb {
+    box-shadow: 0 0 0 6px rgba(244,168,0,0.25);
+  }
+
+  /* ── METRICS ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 1.75rem;
+  }
+  .metric {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.1rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .metric:hover { border-color: var(--accent); }
+  .metric::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .metric-label {
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .metric-val {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: var(--text);
+    letter-spacing: 0.03em;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex; gap: 0; margin-bottom: 0;
+    border-bottom: 2px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text2);
+    letter-spacing: 0.04em;
+    transition: color 0.15s, border-color 0.15s;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── TABLE CONTAINER ── */
+  .tab-panel { padding-top: 0; }
+
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin: 1.75rem 0 0;
+    padding: 0.5rem 0 0.5rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after {
+    content: ''; flex:1; height: 1px;
+    background: var(--line);
+  }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    text-transform: uppercase;
+    vertical-align: middle; margin-left: 6px;
+  }
+  .badge-crit { background: rgba(240,64,64,0.12); color: var(--red); border: 1px solid rgba(240,64,64,0.3); }
+  .badge-std  { background: rgba(0,200,212,0.08); color: var(--cyan); border: 1px solid rgba(0,200,212,0.2); }
+  .badge-seg  { background: rgba(34,199,122,0.1); color: var(--green); border: 1px solid rgba(34,199,122,0.25); }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-top: 0.6rem;
+  }
+
+  .inv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .inv-table thead {
+    background: rgba(0,0,0,0.25);
+    border-bottom: 1px solid var(--line);
+  }
+  .inv-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .inv-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(37,53,80,0.6);
+    color: var(--text);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .inv-table tbody tr:last-child td { border-bottom: none; }
+  .inv-table tbody tr:hover td {
+    background: rgba(0,200,212,0.04);
+  }
+  .inv-table td.fn { color: var(--text2); font-size: 12px; }
+  .inv-table td.spec { color: var(--text2); font-size: 11px; font-family: var(--font-mono); }
+  .price-col {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--accent);
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  .qty-col { color: var(--cyan); font-family: var(--font-mono); font-size: 12px; }
+
+  .total-row {
+    background: rgba(244,168,0,0.07) !important;
+    border-top: 1px solid rgba(244,168,0,0.25) !important;
+  }
+  .total-row td {
+    font-weight: 600 !important;
+    color: var(--text) !important;
+    border-bottom: none !important;
+    font-size: 13px;
+  }
+  .total-row .price-col {
+    font-size: 15px;
+    color: var(--accent) !important;
+  }
+  .total-label {
+    text-align: right;
+    padding: 12px 14px !important;
+    font-family: var(--font-mono);
+    font-size: 10px !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text2) !important;
+  }
+
+  .note {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    border-left: 3px solid var(--line);
+    background: rgba(0,0,0,0.15);
+    line-height: 1.6;
+    border-radius: 0 4px 4px 0;
+  }
+  .note strong { color: var(--text2); }
+
+  /* ── EQUIP NAME ── */
+  .equip-name { font-weight: 500; color: var(--text); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--steel2); }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  @media (max-width: 768px) {
+    .config-grid, .summary-grid { grid-template-columns: 1fr 1fr; }
+    .page-header, .main { padding: 1.25rem; }
+  }
+  @media (max-width: 480px) {
+    .config-grid { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-label">Línea de producción industrial · Colombia 2026</div>
+  <div class="header-title">Inventario <span>Galvalume</span></div>
+  <div class="header-sub">Postes de luz urbanos · Recubrimiento Al-Zn-Si por inmersión en caliente</div>
+  <div class="header-badges">
+    <span class="hbadge hbadge-gold">Aleación 55% Al / 43.4% Zn / 1.6% Si</span>
+    <span class="hbadge hbadge-cyan">Norma ASTM A792</span>
+    <span class="hbadge hbadge-orange">Precios COP referencia 2026</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- CONFIG -->
+  <div class="config-card">
+    <div class="config-title">⚙ Parámetros de lote</div>
+    <div class="config-grid">
+      <div class="config-item">
+        <label>Longitud del poste</label>
+        <input type="range" id="longitud" min="6" max="16" step="1" value="9">
+        <div class="val-display"><span id="longVal">9</span> <span class="unit">m</span></div>
+      </div>
+      <div class="config-item">
+        <label>Diámetro promedio</label>
+        <input type="range" id="diametro" min="80" max="220" step="10" value="120">
+        <div class="val-display"><span id="diaVal">120</span> <span class="unit">mm</span></div>
+      </div>
+      <div class="config-item">
+        <label>Postes por lote</label>
+        <input type="range" id="lote" min="1" max="20" step="1" value="5">
+        <div class="val-display"><span id="loteVal">5</span> <span class="unit">uds</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="summary-grid">
+    <div class="metric">
+      <div class="metric-label">Área superficial / poste</div>
+      <div class="metric-val" id="area">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Masa aleación Al-Zn-Si / lote</div>
+      <div class="metric-val" id="masaBano">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">HCl (33%) requerido / lote</div>
+      <div class="metric-val" id="masaHCl">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Costo estimado / lote</div>
+      <div class="metric-val" id="costoLote">—</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('materiaprima',this)">Materia prima</button>
+    <button class="tab" onclick="showTab('reactivos',this)">Reactivos químicos</button>
+    <button class="tab" onclick="showTab('equipos',this)">Equipos principales</button>
+    <button class="tab" onclick="showTab('seguridad',this)">Seguridad y control</button>
+  </div>
+
+  <!-- TAB: MATERIA PRIMA -->
+  <div id="tab-materiaprima" class="tab-panel">
+    <div class="section-title">Insumos base del proceso</div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr>
+          <th>Material</th><th>Función</th><th>Cantidad / lote</th><th>Precio unitario</th><th>Subtotal / lote</th>
+        </tr></thead>
+        <tbody id="tbody-mp"></tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="4" class="total-label">Total materia prima</td>
+            <td class="price-col" id="total-mp">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: REACTIVOS -->
+  <div id="tab-reactivos" class="tab-panel" style="display:none">
+    <div class="section-title">Desengrase alcalino</div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>Reactivo</th><th>Función</th><th>Cantidad / lote</th><th>Precio unitario</th><th>Subtotal / lote</th></tr></thead>
+        <tbody id="tbody-desengrase"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Decapado ácido <span class="badge badge-crit">⚠ Etapa crítica</span></div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>Reactivo</th><th>Función</th><th>Cantidad / lote</th><th>Precio unitario</th><th>Subtotal / lote</th></tr></thead>
+        <tbody id="tbody-decapado"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Pasivado y acabado</div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>Reactivo</th><th>Función</th><th>Cantidad / lote</th><th>Precio unitario</th><th>Subtotal / lote</th></tr></thead>
+        <tbody id="tbody-pasivado"></tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="4" class="total-label">Total reactivos</td>
+            <td class="price-col" id="total-reac">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: EQUIPOS -->
+  <div id="tab-equipos" class="tab-panel" style="display:none">
+    <div class="section-title">Recepción y manipulación</div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>Equipo</th><th>Función</th><th>Especificación requerida</th><th>Precio estimado (COP)</th></tr></thead>
+        <tbody id="tbody-manip"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Limpieza superficial</div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>Equipo</th><th>Función</th><th>Especificación requerida</th><th>Precio estimado (COP)</th></tr></thead>
+        <tbody id="tbody-limpieza"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Tratamiento térmico</div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>Equipo</th><th>Función</th><th>Especificación requerida</th><th>Precio estimado (COP)</th></tr></thead>
+        <tbody id="tbody-termico"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Recubrimiento Galvalume <span class="badge badge-crit">⚠ Etapa crítica</span></div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>Equipo</th><th>Función</th><th>Especificación requerida</th><th>Precio estimado (COP)</th></tr></thead>
+        <tbody id="tbody-recub"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Enfriamiento y acabado</div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>Equipo</th><th>Función</th><th>Especificación requerida</th><th>Precio estimado (COP)</th></tr></thead>
+        <tbody id="tbody-enfri"></tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="3" class="total-label">Total inversión equipos</td>
+            <td class="price-col" id="total-equip">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: SEGURIDAD -->
+  <div id="tab-seguridad" class="tab-panel" style="display:none">
+    <div class="section-title">Equipos de seguridad, control y medio ambiente</div>
+    <div class="table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>Equipo / sistema</th><th>Función</th><th>Especificación</th><th>Precio estimado (COP)</th></tr></thead>
+        <tbody id="tbody-seg"></tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="3" class="total-label">Total seguridad y control</td>
+            <td class="price-col" id="total-seg">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>* Nota:</strong> Precios de referencia mercado colombiano 2026. La longitud del poste afecta el volumen de los tanques, la cantidad de reactivos y la masa de aleación requerida. La masa del poste se estima para acero al carbono DN120 con espesor nominal de 4 mm. Precios de equipos son de instalación industrial nueva; pueden variar según proveedor.
+  </div>
+
+</div><!-- /main -->
+
+<script>
+const fmt = (n) => '$\u00a0' + Math.round(n).toLocaleString('es-CO');
+
+function renderMP(rows, tbodyId, totalId, total) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(r => `<tr>
+    <td>${r[0]}</td>
+    <td class="fn">${r[1]}</td>
+    <td class="qty-col">${r[2]}</td>
+    <td class="fn">${r[3]}</td>
+    <td class="price-col">${r[4]}</td>
+  </tr>`).join('');
+  if (totalId && total !== undefined) {
+    const el = document.getElementById(totalId);
+    if (el) el.textContent = fmt(total);
+  }
+}
+
+function renderEquip(rows, tbodyId, totalId, total) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(r => `<tr>
+    <td class="equip-name">${r[0]}</td>
+    <td class="fn">${r[1]}</td>
+    <td class="spec">${r[2]}</td>
+    <td class="price-col">${fmt(r[3])}</td>
+  </tr>`).join('');
+  if (totalId && total !== undefined) {
+    const el = document.getElementById(totalId);
+    if (el) el.textContent = fmt(total);
+  }
+}
+
+function showTab(name, btn) {
+  ['materiaprima','reactivos','equipos','seguridad'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = t === name ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function calc() {
+  const L = +document.getElementById('longitud').value;
+  const D = +document.getElementById('diametro').value / 1000;
+  const N = +document.getElementById('lote').value;
+  document.getElementById('longVal').textContent = L;
+  document.getElementById('diaVal').textContent = Math.round(D*1000);
+  document.getElementById('loteVal').textContent = N;
+
+  const areaPoste = Math.PI * D * L;
+  const areaLote  = areaPoste * N;
+
+  const espesorRecub   = 0.000025;
+  const densidadAlZnSi = 3800;
+  const masaBanoKg     = areaLote * espesorRecub * densidadAlZnSi * 1000 + areaLote * 0.5;
+
+  const concHCl       = 0.15;
+  const litrosHCl     = areaLote * concHCl * 1000;
+  const litrosNaOH    = areaLote * 0.08 * 1000;
+  const litrosEnjuague= areaLote * 0.5 * 1000;
+
+  const tanqueVol = (L + 1.5) * (D + 0.4) * 0.6;
+
+  document.getElementById('area').textContent     = areaPoste.toFixed(2) + ' m²';
+  document.getElementById('masaBano').textContent = masaBanoKg.toFixed(1) + ' kg';
+  document.getElementById('masaHCl').textContent  = litrosHCl.toFixed(0) + ' L';
+
+  const precioAlZnSi        = 21000;
+  const precioHCl           = 3200;
+  const precioNaOH          = 1850;
+  const precioTensioactivo  = 4800;
+  const precioPasivante     = 13800;
+  const precioAceiteProtector = 6300;
+  const precioInhibidor     = 9800;
+  const precioNeutralizante = 3700;
+  const precioNaCO3         = 1400;
+  const precioAguaDes       = 1000;
+  const precioN2            = 7500;
+
+  const posteMasaKg  = Math.PI * D * 0.004 * 7850 * L;
+  const postes_precio= posteMasaKg * N * 4400;
+  const AlZnSi_precio= masaBanoKg * precioAlZnSi;
+  const agua_litros  = litrosEnjuague;
+  const agua_precio  = agua_litros * precioAguaDes;
+  const N2_m3        = areaLote * 2;
+  const N2_precio    = N2_m3 * precioN2;
+  const totalMP      = postes_precio + AlZnSi_precio + agua_precio + N2_precio;
+
+  renderMP([
+    ['Postes de acero al carbono',     'Estructura base a recubrir',                  N + ' ud (' + (posteMasaKg*N).toFixed(0) + ' kg)', '$4.400/kg', fmt(postes_precio)],
+    ['Aleación Al-Zn-Si (55/43,4/1,6)','Formación del recubrimiento Galvalume',       masaBanoKg.toFixed(1) + ' kg', '$21.000/kg', fmt(AlZnSi_precio)],
+    ['Agua desmineralizada',            'Enjuagues y limpieza',                        agua_litros.toFixed(0) + ' L', '$1.000/L', fmt(agua_precio)],
+    ['N₂ / aire comprimido',            'Air knife y atmósferas controladas',          N2_m3.toFixed(1) + ' m³',  '$7.500/m³', fmt(N2_precio)],
+  ], 'tbody-mp', 'total-mp', totalMP);
+
+  const NaOH_kg         = litrosNaOH * 0.05;
+  const NaCO3_kg        = litrosNaOH * 0.03;
+  const tens_kg         = litrosNaOH * 0.01;
+  const desengrasante_kg= litrosNaOH * 0.008;
+  const HCl_kg          = litrosHCl  * 0.35;
+  const inhib_kg        = litrosHCl  * 0.003;
+  const neutr_kg        = litrosHCl  * 0.01;
+  const pasiv_kg        = areaLote   * 0.08;
+  const aceite_kg       = areaLote   * 0.05;
+
+  const totalDesengrase = NaOH_kg*precioNaOH + NaCO3_kg*precioNaCO3 + tens_kg*precioTensioactivo + desengrasante_kg*4800;
+  renderMP([
+    ['NaOH (hidróxido de sodio)',    'Eliminación de grasas y aceites',  NaOH_kg.toFixed(2)+' kg',        '$1.850/kg', fmt(NaOH_kg*precioNaOH)],
+    ['Na₂CO₃ (carbonato de sodio)', 'Refuerzo alcalino',                NaCO3_kg.toFixed(2)+' kg',       '$1.400/kg', fmt(NaCO3_kg*precioNaCO3)],
+    ['Tensioactivos industriales',  'Emulsificación de aceites',        tens_kg.toFixed(3)+' kg',        '$4.800/kg', fmt(tens_kg*precioTensioactivo)],
+    ['Desengrasante industrial',    'Limpieza superficial',             desengrasante_kg.toFixed(3)+' kg','$4.800/kg', fmt(desengrasante_kg*4800)],
+  ], 'tbody-desengrase');
+
+  const totalDecapado = HCl_kg*precioHCl + inhib_kg*precioInhibidor + neutr_kg*precioNeutralizante;
+  renderMP([
+    ['HCl (33%) ácido clorhídrico',          'Eliminación de óxidos (Fe₂O₃, FeO)',         HCl_kg.toFixed(2)+' kg',  '$3.200/kg', fmt(HCl_kg*precioHCl)],
+    ['Inhibidor de corrosión (Urotropina)',   'Protección del acero base',                  inhib_kg.toFixed(3)+' kg','$9.800/kg', fmt(inhib_kg*precioInhibidor)],
+    ['Neutralizante (Na₂CO₃ aq.)',           'Control de pH y tratamiento efluentes',       neutr_kg.toFixed(3)+' kg','$3.700/kg', fmt(neutr_kg*precioNeutralizante)],
+  ], 'tbody-decapado');
+
+  const totalPasivado = pasiv_kg*precioPasivante + aceite_kg*precioAceiteProtector;
+  renderMP([
+    ['Pasivante Cr³⁺ / silano',      'Protección superficial anticorrosiva',    pasiv_kg.toFixed(3)+' kg', '$13.800/kg', fmt(pasiv_kg*precioPasivante)],
+    ['Aceite protector industrial',  'Protección temporal almacenamiento',      aceite_kg.toFixed(3)+' kg','$6.300/kg',  fmt(aceite_kg*precioAceiteProtector)],
+  ], 'tbody-pasivado', 'total-reac', totalDesengrase + totalDecapado + totalPasivado);
+
+  const costoLote = totalMP + totalDesengrase + totalDecapado + totalPasivado;
+  document.getElementById('costoLote').textContent = fmt(costoLote);
+
+  const longSpec   = L < 9 ? 'Hasta 10 m' : L <= 12 ? 'Hasta 14 m' : 'Hasta 18 m';
+  const cargaSpec  = L < 9 ? '2 ton' : L <= 12 ? '5 ton' : '8 ton';
+  const volTanque  = ((L+1.5)*(D+0.4)*0.6*1000).toFixed(0);
+
+  renderEquip([
+    ['Puente grúa monorriel',         'Transporte de postes entre etapas',             'Carga '+cargaSpec+', luz '+longSpec, 98000000],
+    ['Sistema de izaje con cadena',   'Manipulación de estructuras grandes',            'Capacidad '+cargaSpec+', remoto', 25000000],
+    ['Estructura de colgado / jig',   'Sujeción del poste durante inmersión',           'Acero inoxidable, ajustable '+longSpec, 9800000],
+  ], 'tbody-manip');
+
+  renderEquip([
+    ['Tanque de desengrase alcalino', 'Limpieza química por inmersión',                 volTanque+' L, acero inox 316, calef. a 60°C', 32000000],
+    ['Sistema de aspersión a presión','Aplicación uniforme de solución alcalina',        '2–4 bar, boquillas inox', 13800000],
+    ['Tanque de enjuague (×2)',       'Eliminación de residuos entre etapas',           volTanque+' L c/u, agua desmineralizada', 21000000],
+    ['Tanque de decapado ácido',      'Eliminación de óxidos con HCl',                  volTanque+' L, HDPE o FRP, ventilación forzada', 40000000],
+  ], 'tbody-limpieza');
+
+  const hornoPrecio = L <= 9 ? 370000000 : L <= 12 ? 520000000 : 710000000;
+  renderEquip([
+    ['Horno de recocido H₂/N₂',         'Reducción de óxidos y activación superficial', 'T hasta 850°C, atmósfera reductora 5%H₂/95%N₂, longitud '+longSpec, hornoPrecio],
+    ['Sistema control de atmósfera',     'Regulación de mezcla gaseosa',                 'Controlador PLC, válvulas proporcionales', 52000000],
+    ['Quemadores industriales (×4)',     'Generación de calor uniforme',                 'Gas natural, 150 000 kcal/h c/u', 41000000],
+  ], 'tbody-termico');
+
+  const crisolPrecio = L <= 9 ? 320000000 : L <= 12 ? 480000000 : 670000000;
+  renderEquip([
+    ['Crisol Al-Zn-Si (acero H13)',      'Contener metal fundido a ~600 °C',             'Acero H13, capacidad '+(volTanque*2)+' kg aleación', crisolPrecio],
+    ['Sistema calefacción por inducción','Mantener aleación a 600 ±5 °C',               'Inductores 200 kW, control PID', 207000000],
+    ['Sistema de inmersión (pistón/grúa)','Introducir postes al baño fundido',           'Velocidad controlada 0,1–0,5 m/s', 63000000],
+    ['Cuchillas de aire (Air knife)',    'Control de espesor del recubrimiento',         'Doble cuchilla, presión 0,5–2 bar', 32000000],
+  ], 'tbody-recub');
+
+  renderEquip([
+    ['Sistema de enfriamiento por agua', 'Solidificación controlada del recubrimiento',  'Rociadores + piscina, caudal 5 m³/h', 37000000],
+    ['Tanque de pasivado',               'Protección superficial post-recubrimiento',    volTanque+' L, PP o PE, temp. ambiente', 16000000],
+    ['Zona de secado con ventiladores',  'Eliminación de humedad superficial',           '8 ventiladores industriales 2 kW', 11000000],
+    ['Área inspección / medidor espesor','Control de calidad del Galvalume',             'Medidor XRF + esclerómetro', 48000000],
+  ], 'tbody-enfri', 'total-equip',
+    98000000+25000000+9800000+32000000+13800000+21000000+40000000+hornoPrecio+52000000+41000000+crisolPrecio+207000000+63000000+32000000+37000000+16000000+11000000+48000000);
+
+  renderEquip([
+    ['Sensores temperatura (termopares K)','Control térmico en horno y crisol',         '±1 °C, 0–1000 °C, 10 puntos de medición', 21000000],
+    ['Medidor de espesor por XRF',        'Verificación del recubrimiento Galvalume',   'Norma ASTM A792, portátil industrial', 40000000],
+    ['Sistema contra incendios',          'Protección industrial zonas de alto riesgo', 'Espuma/CO₂, detección automática', 48000000],
+    ['Sistema extracción gases HCl/H₂',  'Seguridad ambiental y de operarios',         'Caudal 5 000 m³/h, scrubber húmedo', 32000000],
+    ['EPP industrial (×10 operarios)',    'Protección de operarios',                    'Careta, guantes, traje ácido, botas', 13800000],
+    ['SCADA / PLC central',              'Control y monitoreo de toda la línea',        'Siemens S7 o equiv., pantallas HMI', 109000000],
+    ['Planta tratamiento efluentes',     'Control ambiental — aguas ácidas/alcalinas',  'Neutralización, sedimentación, filtro prensa', 98000000],
+  ], 'tbody-seg', 'total-seg',
+    21000000+40000000+48000000+32000000+13800000+109000000+98000000);
+}
+
+['longitud','diametro','lote'].forEach(id => {
+  document.getElementById(id).addEventListener('input', calc);
+});
+calc();
+</script>
+</body>
+</html>
